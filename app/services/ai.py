@@ -18,7 +18,8 @@ summarize_config = {
     "top_p": 0.5,
     "top_k": 20,
     "max_output_tokens": 2048,
-    "response_mime_type": "text/plain",
+    "response_mime_type": "application/json",
+    # "response_mime_type": "text/plain",
 }
 
 
