@@ -1,5 +1,7 @@
+.dockerignore
+Dockerfile
+README.md
 .venv/
 __pycache__/
 .DS_Store
-.env
 /tests

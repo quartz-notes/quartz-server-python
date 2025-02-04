@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_ADDRESS=localhost:8080
+      - SERVER_PORT=8080
+      - POSTGRES_CONN=postgres://postgres:postgres@postgres:5432/promo
+      - POSTGRES_JDBC_URL=jdbc:postgresql://postgres:5432/promo
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DATABASE=promo
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - ANTIFRAUD_ADDRESS=antifraud:9090
+      - RANDOM_SECRET=RANDOM_SECRET
+      - ENVIRONMENT=local
+      - GEMINI_API=AIzaSyATOyWqyu5tePQjNd6lxbP35-5pi_-3VZk
+  #   depends_on:
+  #     - postgres
+
+  # postgres:
+  #   image: postgres:16.6
+  #   environment:
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #     - POSTGRES_DB=promo
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+
+
+# volumes:
+#   postgres_data:
