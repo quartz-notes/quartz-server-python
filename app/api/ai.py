@@ -17,7 +17,7 @@ class Request(BaseModel):
 
 
 @router.post("/parse")
-async def ai_parse(current_user: Annotated[UserDB, Depends(get_current_user)],request: Request):
+async def ai_parse(request: Request):
     response = await parse_model.generate_content_async(request.prompt)
     if settings.ENVIRONMENT == "local":
         print(request.prompt, response.text)
@@ -25,7 +25,7 @@ async def ai_parse(current_user: Annotated[UserDB, Depends(get_current_user)],re
 
 
 @router.post(path="/summarize")
-async def ai_summarize(current_user: Annotated[UserDB, Depends(get_current_user)],request: Request) -> Any:
+async def ai_summarize(request: Request) -> Any:
     response = await summarize_model.generate_content_async(request.prompt)
     if settings.ENVIRONMENT == "local":
         print(request.prompt, response.text)
@@ -33,5 +33,5 @@ async def ai_summarize(current_user: Annotated[UserDB, Depends(get_current_user)
 
 
 @router.post(path="/tags")
-async def ai_tags(current_user: Annotated[UserDB, Depends(get_current_user)],prompt: str):
+async def ai_tags(prompt: str):
     return ["tag1", "tag2", "tag3"]
