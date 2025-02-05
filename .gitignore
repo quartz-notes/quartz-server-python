@@ -5,3 +5,4 @@ __pycache__/
 /tests
 docker-compose.yml
 test.db
+main2.py
