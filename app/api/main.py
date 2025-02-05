@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 
 from app.api.ai import router as ai_router
+from app.api.users import router as users_router
+from app.api.notes import router as notes_router
 
 router = APIRouter(prefix="/api")
 
@@ -9,6 +11,8 @@ router = APIRouter(prefix="/api")
 async def ping():
     return {"status": "morgen trek pososi"}
 router.include_router(ai_router)
+router.include_router(users_router)
+router.include_router(notes_router)
 
 
 

@@ -5,6 +5,7 @@ import yaml
 from app.api.main import router as api_router
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
+from app.core.db import engine, Base
 
 # from app.core.db import init_db
 from app.core.config import settings
@@ -19,11 +20,21 @@ app.include_router(api_router)
 if __name__ == "__main__":
     uvicorn.run(
         "__main__:app",
-        host="localhost",
-        port=settings.SERVER_PORT,
+        host=("0.0.0.0" if settings.ENVIRONMENT != "local" else "localhost"),
+        port=8080,
         reload=(settings.ENVIRONMENT == "local"),
         workers=4,
     )
+
+
+@app.on_event("startup")
+async def startup():
+    try:
+        async with engine.begin() as conn:
+            # await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(Base.metadata.create_all)
+    except:
+        pass
 
 logger = logging.getLogger("uvicorn.error")
 

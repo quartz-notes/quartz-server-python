@@ -5,3 +5,5 @@ README.md
 __pycache__/
 .DS_Store
 /tests
+docker-compose.yml
+test.db

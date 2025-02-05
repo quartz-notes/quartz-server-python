@@ -1,37 +1,39 @@
-
-# async def get_token_user(
-#     session: SessionDep,
-#     authorization: HTTPAuthorizationCredentials = Depends(security),
-# ):
-#     token = authorization.credentials
-#     # Use get_current_user to decode and validate the tokens
-#     user_payload = get_current_user(session, token)
-#     # Query the database for the token
-#     query = select(TokenUser).where(TokenUser.id == token, TokenUser.is_active == True)
-#     result = await session.execute(query)
-#     db_token = result.scalar_one_or_none()
-#     if (
-#         db_token is None
-#         or not bool(db_token.is_active)
-#         or (str(db_token.user_id) != str(user_payload["id"]))
-#     ):
-#         raise HTTPException(status_code=401, detail="UserToken is inactive or invalid.")
-#     return db_token.user_id
+from datetime import timedelta
+from fastapi.security import OAuth2PasswordBearer
+from passlib.context import CryptContext
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-# async def add_token_user(user: User, session: AsyncSession) -> str:
-#     await session.execute(
-#         update(TokenUser).where(TokenUser.user_id == user.id).values(is_active=False)
-#     )
-#     await session.commit()
-#     new_token = create_access_token(
-#         str(user.id),
-#         expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
-#     )
-#     new_token_db = TokenUser(id=str(new_token), user=user)
-#     session.add(new_token_db)
-#     await session.commit()
-#     return new_token
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
-# TokenDepUser = Annotated[str, Depends(get_token_user)]
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+
+async def get_user(db: AsyncSession, username: str):
+    result = await db.execute(select(UserDB).filter(UserDB.username == username))
+    return result.scalars().first()
+
+
+async def authenticate_user(db: AsyncSession, username: str, password: str):
+    user = await get_user(db, username)
+    if not user or not verify_password(password, user.hashed_password):
+        return None
+    return user
+
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=15))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
