@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import UUID4
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,7 +39,7 @@ async def get_user_notes(
 
 @router.put("/notes/{note_id}")
 async def update_note(
-    note_id: int,
+    note_id: UUID4,
     note_update: NoteUpdate,
     current_user: Annotated[UserDB, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -59,7 +60,7 @@ async def update_note(
 
 @router.delete("/notes/{note_id}")
 async def delete_note(
-    note_id: int,
+    note_id: UUID4,
     current_user: Annotated[UserDB, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -72,3 +73,15 @@ async def delete_note(
     await db.delete(note)
     await db.commit()
     return {"detail": "Note deleted"}
+
+@router.get("/notes/{note_id}")
+async def get_note(
+    note_id: UUID4,
+    current_user: Annotated[UserDB, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    result = await db.execute(select(NoteDB).filter(NoteDB.id == note_id, NoteDB.owner_id == current_user.id))
+    note = result.scalars().first()
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    return note
