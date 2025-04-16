@@ -21,7 +21,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "__main__:app",
         host=("0.0.0.0" if settings.ENVIRONMENT != "local" else "localhost"),
-        port=8080,
+        port=10000,
         reload=(settings.ENVIRONMENT == "local"),
         workers=4,
     )
@@ -63,6 +63,7 @@ app.add_middleware(
         "http://localhost:8080",
         "http://localhost:8081",
         "http://127.0.0.1:8081",
+        "https://quart-notes.github.io",
         "*",
     ],  # Allows CORS from this origin
     allow_credentials=True,  # Allows cookies and credentials
